@@ -79,4 +79,4 @@ def q_learning(env, num_episodes, policy_fn, update_fn, discount_factor=1.0, alp
         
         stats.append((i, R))
     episode_lengths, episode_returns = zip(*stats)
-    return Q, (episode_lengths, episode_returns)
+    return policy.Q, (episode_lengths, episode_returns)
