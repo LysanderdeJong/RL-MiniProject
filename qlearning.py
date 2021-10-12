@@ -1,3 +1,6 @@
+import numpy as np
+from tqdm import tqdm
+
 class EpsilonGreedyPolicy(object):
     """
     A simple epsilon greedy policy.
