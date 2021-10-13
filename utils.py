@@ -1,13 +1,5 @@
-import gym
+import numpy as np
 
-def load_environment(environment):
-
-    if environment == 'FrozenLake-v1-nonslippery':
-
-        env = gym.make('FrozenLake-v1', is_slippery=False)
-        print(env.desc)
-
-    else:
-        env = gym.make(environment)
-
-    return env
+def running_mean(vals, n=1):
+    cumvals = np.array(vals).cumsum()
+    return (cumvals[n:] - cumvals[:-n]) / n

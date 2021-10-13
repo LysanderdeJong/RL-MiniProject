@@ -1,6 +1,5 @@
 # local imports
-from qlearning import q_learning, update, EpsilonGreedyPolicy
-from utils import load_environment
+from qlearning import q_learning, EpsilonGreedyPolicy
 
 # Global imports
 import numpy as np
@@ -10,21 +9,22 @@ def run_experiment(environment,
                    discount_factor=1.0,
                    alpha=0.5,
                    epsilon=0.1,
-                   double=False):
+                   double=False,
+                   seed=None):
 
     # load desired environment
-    env = load_environment(environment)
-
-    policy_fn = EpsilonGreedyPolicy
-    update_fn = update
-    Q_values, (episode_lengths, episode_returns) = q_learning(env,
+    if seed:
+        environment.seed(seed)
+    try:
+        Q = np.zeros((environment.nS, environment.nA))
+    except Exception:
+        Q = np.zeros((environment.env.nS, environment.env.nA))
+    policy = EpsilonGreedyPolicy(Q, epsilon=epsilon, double=double)
+    Q_values, (episode_lengths, episode_returns) = q_learning(environment,
                                                               num_episodes,
-                                                              policy_fn,
-                                                              update_fn,
+                                                              policy,
                                                               discount_factor=discount_factor,
-                                                              alpha=alpha,
-                                                              epsilon=epsilon,
-                                                              double=double)
+                                                              alpha=alpha)
 
     return Q_values, (episode_lengths, episode_returns)
 
