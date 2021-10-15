@@ -5,9 +5,10 @@ class EpsilonGreedyPolicy(object):
     """
     A simple epsilon greedy policy.
     """
-    def __init__(self, Q, epsilon, double=False):
+    def __init__(self, Q, epsilon, decay_rate=0.99, double=False):
         self.Q = np.stack([Q, Q], axis=-1)
         self.epsilon = epsilon
+        self.decay_rate = decay_rate
         self.double = double
     
     def sample_action(self, obs):
@@ -82,5 +83,9 @@ def q_learning(env, num_episodes, policy, discount_factor=1.0, alpha=0.5):
                 break
         
         stats.append((i, R))
+
+        if policy.epsilon > 0.05:
+            policy.epsilon = policy.epsilon * policy.decay_rate
+
     episode_lengths, episode_returns = zip(*stats)
     return Q, (episode_lengths, episode_returns)

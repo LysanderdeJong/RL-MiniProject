@@ -9,6 +9,7 @@ def run_experiment(environment,
                    discount_factor=1.0,
                    alpha=0.5,
                    epsilon=0.1,
+                   decay_rate=0.99,
                    double=False,
                    seed=None):
 
@@ -19,7 +20,7 @@ def run_experiment(environment,
         Q = np.zeros((environment.nS, environment.nA))
     except Exception:
         Q = np.zeros((environment.env.nS, environment.env.nA))
-    policy = EpsilonGreedyPolicy(Q, epsilon=epsilon, double=double)
+    policy = EpsilonGreedyPolicy(Q, epsilon=epsilon, decay_rate=decay_rate, double=double)
     Q_values, (episode_lengths, episode_returns) = q_learning(environment,
                                                               num_episodes,
                                                               policy,
