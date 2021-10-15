@@ -21,6 +21,8 @@ class EpsilonGreedyPolicy(object):
             An action (int).
         """
         Q = np.sum(self.Q, axis=-1)
+        if isinstance(obs, tuple):
+            obs = tuple((int(d) for d in obs))
         action_probs = Q[obs]
         if np.random.uniform() < 1-self.epsilon:
             action = np.argmax(action_probs)
@@ -36,7 +38,17 @@ class EpsilonGreedyPolicy(object):
             index = 1 if np.random.uniform() > 0.5 else 0
         else:
             index = 0
-        self.Q[state, action, index] = self.Q[state, action, index] + alpha*(reward + discount_factor*max(self.Q[state_prime, :, index]) - self.Q[state, action, index])
+        
+        if isinstance(state, tuple):
+            state = tuple((int(d) for d in state))
+            state_prime = tuple((int(d) for d in state_prime))
+            Q_indices = state + (action, index)
+            Q_prime_indices = state + (slice(None), index)
+        else:
+            Q_indices = (state, action, index)
+            Q_prime_indices = (state_prime, slice(None), index)
+        
+        self.Q[Q_indices] = self.Q[Q_indices] + alpha*(reward + discount_factor*max(self.Q[Q_prime_indices]) - self.Q[Q_indices])
         return self.Q
     
 
