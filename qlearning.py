@@ -36,19 +36,25 @@ class EpsilonGreedyPolicy(object):
     def update_Q(self, state, state_prime, action, reward, discount_factor=1.0, alpha=0.5):
         if self.double:
             index = 1 if np.random.uniform() > 0.5 else 0
+            other_index = 1 - index
         else:
             index = 0
+            other_index = 0
         
         if isinstance(state, tuple):
             state = tuple((int(d) for d in state))
             state_prime = tuple((int(d) for d in state_prime))
-            Q_indices = state + (action, index)
-            Q_prime_indices = state + (slice(None), index)
+            Q_index = state + (action, index)
+            Q_prime_indices = state_prime + (slice(None), index)
+            best_action = np.argmax(self.Q[Q_prime_indices])
+            target_Q_index = state_prime + (best_action, other_index)
         else:
-            Q_indices = (state, action, index)
+            Q_index = (state, action, index)
             Q_prime_indices = (state_prime, slice(None), index)
+            best_action = np.argmax(self.Q[Q_prime_indices])
+            target_Q_index = (state_prime, best_action, other_index)
         
-        self.Q[Q_indices] = self.Q[Q_indices] + alpha*(reward + discount_factor*max(self.Q[Q_prime_indices]) - self.Q[Q_indices])
+        self.Q[Q_index] = self.Q[Q_index] + alpha*(reward + discount_factor*self.Q[target_Q_index] - self.Q[Q_index])
         return self.Q
     
 
