@@ -20,12 +20,19 @@ class EpsilonGreedyPolicy(object):
         Returns:
             An action (int).
         """
-        Q = np.sum(self.Q, axis=-1)
+        if self.double:
+            Q = np.mean(self.Q, axis=-1)
+        else:
+            Q = self.Q[:, :, 0]
+            
         if isinstance(obs, tuple):
             obs = tuple((int(d) for d in obs))
+            
         action_probs = Q[obs]
         if np.random.uniform() < 1-self.epsilon:
-            action = np.argmax(action_probs)
+            action_probs = (action_probs - np.max(action_probs)) == 0
+            action_probs = action_probs / action_probs.sum()
+            action = np.random.choice(np.arange(len(self.Q[obs])), p=action_probs)
         else:
             action = np.random.choice(np.arange(len(self.Q[obs])))
         return action
