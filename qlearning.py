@@ -24,7 +24,7 @@ class EpsilonGreedyPolicy(object):
         if self.double:
             Q = np.mean(self.Q, axis=-1)
         else:
-            Q = self.Q[:, :, 0]
+            Q = self.Q[..., 0]
             
         if isinstance(obs, tuple):
             obs = tuple((int(d) for d in obs))
