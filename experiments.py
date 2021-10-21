@@ -33,13 +33,13 @@ def run_experiment(environment,
     Q = np.zeros(Q_dim)
     
     policy = EpsilonGreedyPolicy(Q, epsilon=epsilon, decay_rate=decay_rate, double=double)
-    Q_values, (episode_lengths, episode_returns) = q_learning(environment,
+    Q_values, (episode_lengths, episode_returns), success_percentage = q_learning(environment,
                                                               num_episodes,
                                                               policy,
                                                               discount_factor=discount_factor,
                                                               alpha=alpha)
 
-    return Q_values, (episode_lengths, episode_returns)
+    return Q_values, (episode_lengths, episode_returns), success_percentage
 
 def multi_trail_experiment(env_name, env, config):
     results = defaultdict(lambda: defaultdict(list))
@@ -61,7 +61,7 @@ def multi_trail_experiment(env_name, env, config):
     for i in range(num_trails):
         np.random.seed(i)
         random.seed(i)
-        Q_values, (episode_lengths, episode_returns) = run_experiment( env,
+        Q_values, (episode_lengths, episode_returns), success_percentage = run_experiment( env,
                                                                        num_episodes,
                                                                        discount_factor=q_discount_factor,
                                                                        alpha=q_alpha,
@@ -72,8 +72,9 @@ def multi_trail_experiment(env_name, env, config):
         results["Q"]["episode_length"].append(np.array(episode_lengths))
         results["Q"]["episode_return"].append(np.array(episode_returns))
         results["Q"]["q_values"].append(Q_values[:, :, 0])
+        results["Q"]["outcomes"].append(success_percentage)
 
-        Q_values, (episode_lengths, episode_returns) = run_experiment( env,
+        Q_values, (episode_lengths, episode_returns), success_percentage = run_experiment( env,
                                                                        num_episodes,
                                                                        discount_factor=dq_discount_factor,
                                                                        alpha=dq_alpha,
@@ -84,6 +85,9 @@ def multi_trail_experiment(env_name, env, config):
         results["DQ"]["episode_length"].append(np.array(episode_lengths))
         results["DQ"]["episode_return"].append(np.array(episode_returns))
         results["DQ"]["q_values"].append(Q_values.mean(-1))
+        results["DQ"]["outcomes"].append(success_percentage)
+
+    print(results["DQ"]["outcomes"])
     
     for i in results.keys():
         for j in results[i].keys():

@@ -86,6 +86,7 @@ def q_learning(env, num_episodes, policy, discount_factor=1.0, alpha=0.5):
     
     # Keeps track of useful statistics
     stats = []
+    outcomes = []
     
     for i_episode in tqdm(range(num_episodes)):
         i = 0
@@ -95,6 +96,7 @@ def q_learning(env, num_episodes, policy, discount_factor=1.0, alpha=0.5):
         
         while True:
             action = policy.sample_action(state)
+
             state_prime, reward, termination, info = env.step(action)
             
             Q = policy.update_Q(state, state_prime, action, reward, discount_factor=discount_factor, alpha=alpha)
@@ -103,7 +105,7 @@ def q_learning(env, num_episodes, policy, discount_factor=1.0, alpha=0.5):
             
             i += 1
             R += reward
-            
+
             if termination:
                 break
         
@@ -111,5 +113,10 @@ def q_learning(env, num_episodes, policy, discount_factor=1.0, alpha=0.5):
 
         policy.epsilon = policy.epsilon * policy.decay_rate
 
+        if i_episode > (num_episodes-1000):
+            outcomes.append(reward)
+
+    success_percentage = np.asarray(outcomes).mean()
+
     episode_lengths, episode_returns = zip(*stats)
-    return Q, (episode_lengths, episode_returns)
+    return Q, (episode_lengths, episode_returns), success_percentage
