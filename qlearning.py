@@ -6,7 +6,7 @@ class EpsilonGreedyPolicy(object):
     A simple epsilon greedy policy.
     """
     def __init__(self, Q, epsilon, decay_rate, double=False):
-        self.Q = np.stack([Q, Q], axis=-1)
+        self.Q = np.stack([Q, Q.copy()], axis=-1)
         self.epsilon = epsilon
         self.double = double
         self.decay_rate = decay_rate
