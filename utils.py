@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.ndimage import gaussian_filter
 from matplotlib import pyplot as plt
+from experiments import multi_trail_experiment
 
 
 
@@ -26,7 +27,7 @@ def running_linear(vals, n=1):
 def plot_results(results, env_name, smooth=1):
     keys = list(results.keys())
     for i in results[keys[0]].keys():
-        if i == "q_values":
+        if i == "q_values" or i == "outcomes":
             continue
         for j in keys:
             mean = running_mean(results[j][i][0],smooth)
@@ -39,3 +40,17 @@ def plot_results(results, env_name, smooth=1):
         plt.title(f"{i.replace('_', ' ').capitalize()} on {env_name}")
         plt.savefig(f'figures/{env_name}_{i}.pdf', dpi=300)
         plt.show()
+
+
+
+def parameter_search(environment, config, parameter, values):
+    all_results = []
+    for v in values:
+        config["q_" + parameter] = v
+        config["dq_" + parameter] = v
+        results = multi_trail_experiment("", environment, config)
+        result_q = np.asarray(results["Q"]["outcomes"]).mean()
+        result_dq = np.asarray(results["DQ"]["outcomes"]).mean()
+        all_results.append((v, result_q, result_dq))
+    for (v, q, dq) in all_results:
+        print(f"{parameter} = {v}: \t{q:.4f}, \t{dq:.4f}")

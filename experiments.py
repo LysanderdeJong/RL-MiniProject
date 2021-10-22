@@ -41,7 +41,7 @@ def run_experiment(environment,
 
     return Q_values, (episode_lengths, episode_returns), success_percentage
 
-def multi_trail_experiment(env_name, env, config):
+def multi_trail_experiment(env_name, env, config, final=False):
     results = defaultdict(lambda: defaultdict(list))
     
     num_episodes = config["num_episodes"]
@@ -59,8 +59,10 @@ def multi_trail_experiment(env_name, env, config):
 
     
     for i in range(num_trails):
-        np.random.seed(i)
-        random.seed(i)
+        seed = i
+        if final: seed = -i
+        np.random.seed(seed)
+        random.seed(seed)
         Q_values, (episode_lengths, episode_returns), success_percentage = run_experiment( env,
                                                                        num_episodes,
                                                                        discount_factor=q_discount_factor,
@@ -68,7 +70,7 @@ def multi_trail_experiment(env_name, env, config):
                                                                        epsilon=q_epsilon,
                                                                        decay_rate=q_decay_rate,
                                                                        double=False,
-                                                                       seed=i)
+                                                                       seed=seed)
         results["Q"]["episode_length"].append(np.array(episode_lengths))
         results["Q"]["episode_return"].append(np.array(episode_returns))
         results["Q"]["q_values"].append(Q_values[:, :, 0])
@@ -81,13 +83,13 @@ def multi_trail_experiment(env_name, env, config):
                                                                        epsilon=dq_epsilon,
                                                                        decay_rate=dq_decay_rate,
                                                                        double=True,
-                                                                       seed=i)
+                                                                       seed=seed)
         results["DQ"]["episode_length"].append(np.array(episode_lengths))
         results["DQ"]["episode_return"].append(np.array(episode_returns))
         results["DQ"]["q_values"].append(Q_values.mean(-1))
         results["DQ"]["outcomes"].append(success_percentage)
 
-    print(results["DQ"]["outcomes"])
+    #print(results["DQ"]["outcomes"])
     
     for i in results.keys():
         for j in results[i].keys():
