@@ -60,7 +60,7 @@ def multi_trail_experiment(env_name, env, config, final=False):
     
     for i in range(num_trails):
         seed = i
-        if final: seed = -i
+        if final: seed = i ^ 527907382
         np.random.seed(seed)
         random.seed(seed)
         Q_values, (episode_lengths, episode_returns), success_percentage = run_experiment( env,
